@@ -13,11 +13,10 @@ services:
       - CANTALOUPE_S3SOURCE_SECRET_KEY=$AWS_SECRET_ACCESS_KEY
       - CANTALOUPE_S3SOURCE_BASICLOOKUPSTRATEGY_BUCKET_NAME=$AWS_BUCKET_NAME
       - CANTALOUPE_S3SOURCE_REGION=$AWS_REGION
-#      - CANTALOUPE_S3SOURCE_ENDPOINT=$S3_ENDPOINT
+  #      - CANTALOUPE_S3SOURCE_ENDPOINT=$S3_ENDPOINT
   iiif_cloud:
     build: .
     depends_on:
-      - db
       - redis
     ports:
       - "8080:5000"
@@ -40,20 +39,10 @@ services:
       - RAILS_ENV=$RAILS_ENV
       - HOSTNAME=$HOSTNAME
       - SECRET_KEY_BASE=$SECRET_KEY_BASE
-#      - S3_ENDPOINT=$S3_ENDPOINT
+    #      - S3_ENDPOINT=$S3_ENDPOINT
     networks:
       - default
       - shared
-  db:
-    image: postgres:alpine
-    volumes:
-      - $DB_VOLUME:/var/lib/postgresql/data
-    ports:
-      - "54333:5432"
-    environment:
-      - POSTGRES_PASSWORD=$DATABASE_PASSWORD
-      - POSTGRES_USER=$DATABASE_USERNAME
-      - PGDATA=/var/lib/postgresql/data/pgdata
   redis:
     image: redis:alpine
     ports:
