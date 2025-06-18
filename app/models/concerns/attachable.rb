@@ -74,6 +74,7 @@ module Attachable
         return nil if attachment.audio?
 
         "#{self.send("#{name}_base_url")}#{page_number.nil? ? '' : ";#{page_number}"}/full/max/0/default.jpg"
+        "#{self.send("#{name}_base_url")}/full/max/0/default.jpg"
       end
 
       define_method("#{name}_base_url") do
