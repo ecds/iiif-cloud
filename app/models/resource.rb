@@ -33,9 +33,7 @@ class Resource < ApplicationRecord
   alias_method :attachable_content_thumbnail_url, :content_thumbnail_url
 
   def content_base_url
-    return "#{ENV['IIIF_HOST_DOCKER']}/iif/3/#{content.key}" if ENV['IIIF_HOST_DOCKER'].include? 'ecds'
     return attachable_content_base_url unless content_converted.attached?
-
 
     "#{ENV['IIIF_HOST_DOCKER'] || ENV['IIIF_HOST']}/iiif/3/#{content_converted.key}"
   end
