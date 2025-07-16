@@ -81,7 +81,7 @@ module Attachable
         attachment = self.send(name)
         return nil unless attachment.attached?
 
-        "#{ENV['IIIF_HOST']}/iiif/3/#{attachment.key}"
+        "#{ENV['IIIF_HOST_DOCKER'] || ENV['IIIF_HOST']}/iiif/3/#{attachment.key}"
       end
 
       define_method("#{name}_download_url") do
