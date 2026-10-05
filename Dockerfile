@@ -1,6 +1,6 @@
 FROM ruby:3.1.1
 
-RUN apt update && apt install git npm nodejs curl ruby-foreman -y
+RUN apt update && apt install git npm nodejs curl ruby-foreman libpng-dev libjpeg-dev libtiff-dev exiftool libvips -y
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt update -y
 RUN apt upgrade -y

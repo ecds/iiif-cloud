@@ -34,7 +34,6 @@ s3compatible_transfer:
   secret_access_key: <%= ENV['TRANSFER_AWS_SECRET_ACCESS_KEY'] %>
   bucket: <%= ENV['TRANSFER_AWS_BUCKET_NAME'] %>
   endpoint: <%= ENV['TRANSFER_S3_ENDPOINT'] %>
-
 # Remember not to checkin your GCS keyfile to a repository
 # google:
 #   service: GCS

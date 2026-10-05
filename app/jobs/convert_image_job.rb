@@ -21,6 +21,14 @@ class ConvertImageJob < ApplicationJob
           content_type: 'image/tiff'
         )
 
+        # Ecds::Iip.process(resource_id)
+
+        # Create the manifest
+        CreateManifestJob.perform_later(resource.id)
+
+        # Extract EXIF data
+        ExtractExifJob.perform_later(resource.id)
+
       rescue MiniMagick::Error => e
         # Content cannot be converted
         Rails.logger.error e.message

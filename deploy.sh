@@ -8,7 +8,11 @@ echo "Logged in successfully"
 echo "$PROD_ENV" >> .env
 
 echo "Building and tagging Docker image"
-docker build -t iiif-cloud --no-cache .
+docker build \
+       --platform linux/amd64 \
+       -t iiif-cloud \
+       .
+
 docker tag iiif-cloud 310867200447.dkr.ecr.us-east-1.amazonaws.com/iiif-cloud:latest
 
 echo "Pushing image"

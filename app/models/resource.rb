@@ -76,10 +76,10 @@ class Resource < ApplicationRecord
     # Convert the image to a TIFF
     ConvertImageJob.perform_later(self.id)
 
-    # Create the manifest
+    # # Create the manifest
     CreateManifestJob.perform_later(self.id)
 
-    # Extract EXIF data
+    # # Extract EXIF data
     ExtractExifJob.perform_later(self.id)
   end
 

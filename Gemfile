@@ -67,3 +67,6 @@ group :development do
   # gem "spring"
 end
 
+# ECDS
+gem 'ruby-vips'
+gem 'exiftool'

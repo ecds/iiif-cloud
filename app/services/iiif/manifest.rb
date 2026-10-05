@@ -73,7 +73,7 @@ module Iiif
 
       if resource.image? || resource.pdf?
         annotation['body']['service'] = [{
-          id: "#{resource.content_base_url};#{page_number}",
+          id: "#{resource.content_base_url}",
           type: 'ImageService3',
           profile: 'http://iiif.io/api/image/3/level2.json'
         }]
