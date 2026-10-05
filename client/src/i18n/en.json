@@ -8,6 +8,21 @@
       "success": "You've successfully authenticated"
     }
   },
+  "AttachmentDetails": {
+    "labels": {
+      "fileSize": "File size",
+      "key": "Key",
+      "pages": "Pages",
+      "type": "Type"
+    },
+    "messages": {
+      "noContent": "No attached content."
+    }
+  },
+  "ClerkLoginModal": {
+    "header": "Welcome to FairImage",
+    "login": "Sign in with Performant Studio"
+  },
   "Common": {
     "buttons": {
       "add": "Add",
@@ -48,6 +63,13 @@
       "name": "Name"
     }
   },
+  "HeapSpace": {
+    "labels": {
+      "free": "Free",
+      "used": "Used"
+    },
+    "title": "Heap Space"
+  },
   "Home": {
     "header": "Welcome to Rails-React Template <1>Edit <1>src/App.js</1> and save to reload.</1>"
   },
@@ -66,15 +88,6 @@
         "email": "Email",
         "name": "Name"
       }
-    }
-  },
-  "OrganizationModal": {
-    "labels": {
-      "organization": "Organization"
-    },
-    "title": {
-      "add": "Add Organization",
-      "edit": "Edit Organization"
     }
   },
   "Organizations": {
@@ -105,11 +118,38 @@
   },
   "Resource": {
     "buttons": {
-      "exif": "View Info"
+      "clearCache": "Clear cache",
+      "convert": "Convert",
+      "exif": "View Info",
+      "rebuildManifest": "Rebuild manifest",
+      "viewManifest": "View manifest"
     },
     "labels": {
+      "attachments": "Attachments",
       "content": "Content",
+      "convertedImage": "Converted PTIF",
+      "name": "Name",
+      "sourceImage": "Source Image",
+      "storageKey": "Storage key",
+      "externalMetadata": "External Metadata",
       "uuid": "Unique identifier"
+    },
+    "messages": {
+      "cache": {
+        "content": "Successfully removed the {{tab}} from IIIF cache.",
+        "header": "Cache Cleared"
+      },
+      "convert": {
+        "content": "A request to convert the resource to a PTIF has been submitted. Please refresh the page to view the results.",
+        "header": "Convert Resource"
+      },
+      "manifest": {
+        "content": "A request to rebuild the IIIF manifest has been submitted. It may take a moment to process.",
+        "header": "Rebuild Manifest"
+      },
+      "externalMetadata": {
+        "content": "This metadata is synced from an external source, such as FairData, and can't be edited here. To change these values, edit them in the source system."
+      }
     }
   },
   "ResourceExifModal": {
@@ -138,20 +178,25 @@
     "labels": {
       "admin": "Administrator",
       "email": "Email",
-      "name": "Name",
-      "password": "Password",
-      "passwordConfirmation": "Password confirmation"
+      "name": "Name"
     },
     "organizations": {
       "columns": {
         "location": "Location",
         "name": "Name"
       }
-    },
-    "password": {
-      "content": "Passwords must be at least eight (8) characters.",
-      "header": "Password Policy"
     }
+  },
+  "SystemStatus": {
+    "labels": {
+      "application": "Application",
+      "operatingSystem": "Operating system",
+      "processors": "Processors",
+      "version": "Version",
+      "vm": "VM",
+      "vmVersion": "VM version"
+    },
+    "title": "System Status"
   },
   "UserModal": {
     "labels": {
@@ -160,14 +205,6 @@
     "title": {
       "add": "Add User",
       "edit": "Edit User"
-    }
-  },
-  "UserOrganizationModal": {
-    "labels": {
-      "organization": "Organization"
-    },
-    "title": {
-      "add": "Add User Organization"
     }
   },
   "Users": {

@@ -1,7 +1,7 @@
-FROM ruby:3.1.1
+FROM ruby:3.4.4
 
-RUN apt update && apt install git npm nodejs curl ruby-foreman libpng-dev libjpeg-dev libtiff-dev exiftool libvips -y
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt update && apt install git npm nodejs curl ruby-foreman ffmpeg -y
+RUN curl -sL https://deb.nodesource.com/setup_24.x | bash -
 RUN apt update -y
 RUN apt upgrade -y
 RUN apt install nodejs -y

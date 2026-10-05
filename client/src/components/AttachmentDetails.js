@@ -1,0 +1,101 @@
+// @flow
+
+import cx from 'classnames';
+import React, { type ComponentType } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Icon, Image, List } from 'semantic-ui-react';
+import FileUtils from '../utils/File';
+import styles from './AttachmentDetails.module.css';
+
+type Props = {
+  attachment?: {
+    byte_size: number,
+    content_type: string,
+    key?: string,
+    pages?: number
+  }
+};
+
+const AttachmentDetails: ComponentType<any> = (props: Props) => {
+  const { t } = useTranslation();
+
+  return (
+    <div
+      className={styles.attachmentDetails}
+    >
+      { !props.attachment && (
+        <span>
+          { t('AttachmentDetails.messages.noContent') }
+        </span>
+      )}
+      { props.attachment && (
+        <List
+          className={cx(styles.ui, styles.list)}
+          padded='very'
+          relaxed='very'
+        >
+          { props.attachment?.key && (
+            <List.Item
+              className={styles.item}
+              content={props.attachment.key}
+              header={t('AttachmentDetails.labels.key')}
+              image={(
+                <Image>
+                  <Icon
+                    circular
+                    name='aws'
+                    size='large'
+                  />
+                </Image>
+              )}
+            />
+          )}
+          { props.attachment?.pages && (
+            <List.Item
+              className={styles.item}
+              content={props.attachment.pages}
+              header={t('AttachmentDetails.labels.pages')}
+              image={(
+                <Image>
+                  <Icon
+                    circular
+                    name='copy outline'
+                    size='large'
+                  />
+                </Image>
+              )}
+            />
+          )}
+          <List.Item
+            content={FileUtils.getFileSize(props.attachment?.byte_size)}
+            header={t('AttachmentDetails.labels.fileSize')}
+            image={(
+              <Image>
+                <Icon
+                  circular
+                  name='file alternate'
+                  size='large'
+                />
+              </Image>
+            )}
+          />
+          <List.Item
+            content={props.attachment?.content_type}
+            header={t('AttachmentDetails.labels.type')}
+            image={(
+              <Image>
+                <Icon
+                  circular
+                  name='th large'
+                  size='large'
+                />
+              </Image>
+            )}
+          />
+        </List>
+      )}
+    </div>
+  );
+};
+
+export default AttachmentDetails;

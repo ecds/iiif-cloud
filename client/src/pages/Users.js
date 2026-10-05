@@ -4,7 +4,7 @@ import { ItemList, LazyImage } from '@performant-software/semantic-components';
 import React, { type ComponentType } from 'react';
 import { withTranslation } from 'react-i18next';
 import UsersService from '../services/Users';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 const Users: ComponentType<any> = withTranslation()(() => {
   const navigate = useNavigate();
@@ -14,13 +14,7 @@ const Users: ComponentType<any> = withTranslation()(() => {
       actions={[{
         name: 'edit',
         onClick: (item) => navigate(`/users/${item.id}`)
-      }, {
-        name: 'delete'
       }]}
-      addButton={{
-        location: 'top',
-        onClick: () => navigate('/users/new')
-      }}
       collectionName='users'
       defaultSort='name'
       onLoad={(params) => UsersService.fetchAll(params)}
@@ -29,7 +23,7 @@ const Users: ComponentType<any> = withTranslation()(() => {
       renderImage={(user) => (
         <LazyImage
           dimmable={false}
-          src={user.avatar_thumbnail_url}
+          src={user.avatar_url}
         />
       )}
       renderMeta={(user) => user.email}

@@ -9,6 +9,55 @@ import type { Resource as ResourceType } from '../types/Resource';
  */
 class Resources extends BaseService {
   /**
+   * Calls the `/api/resources/:id/clear_cache` API endpoint.
+   *
+   * @param id
+   * @param attribute
+   *
+   * @returns {*}
+   */
+  clearCache(id: number, attribute: string): Promise<any> {
+    return this.getAxios().post(`${this.getBaseUrl()}/${id}/clear_cache`, { attribute }, this.getConfig());
+  }
+  
+  /**
+   * Calls the `/api/resources/:id/convert` API endpoint.
+   *
+   * @param id
+   *
+   * @returns {*}
+   */
+  convert(id: number): Promise<any> {
+    return this.getAxios().post(`${this.getBaseUrl()}/${id}/convert`);
+  }
+
+  /**
+   * Calls the `/api/resources/:id/create_manifest` API endpoint.
+   *
+   * @param id
+   *
+   * @returns {*}
+   */
+  createManifest(id: number): Promise<any> {
+    return this.getAxios().post(`${this.getBaseUrl()}/${id}/create_manifest`, {}, this.getConfig());
+  }
+
+  /**
+   * Calls the `POST /api/resources` API endpoint, calling the passed callback as the request body is uploaded.
+   *
+   * @param item
+   * @param onUploadProgress
+   *
+   * @returns {*}
+   */
+  createWithProgress(item: ResourceType, onUploadProgress: (event: any) => void): Promise<any> {
+    const transform = this.getTransform();
+    const config = { ...this.getConfig(), onUploadProgress };
+
+    return this.getAxios().post(this.getBaseUrl(), transform.toPayload(item), config);
+  }
+
+  /**
    * Returns the resources base URL.
    *
    * @returns {string}

@@ -13,8 +13,46 @@ class Api::ResourcesController < Api::BaseController
   # Actions
   before_action :set_defineable_params, only: :index
   before_action :validate_new_resource, unless: -> { current_user.admin? }, only: :create
-  before_action :validate_resource, unless: -> { current_user.admin? }, only: [:update, :destroy]
+  before_action :validate_resource, unless: -> { current_user.admin? }, only: [:update, :destroy, :create_manifest]
   before_action :validate_resources, unless: -> { current_user.admin? }, only: :index
+
+  def clear_cache
+    render json: { errors: [I18n.t('errors.resources_controller.clear_cache')] }, status: :unauthorized and return unless can_clear_cache?
+
+    resource = Resource.find(params[:id])
+
+    # PDFs store pages separately/individually
+    keys = if params[:attribute] == 'content_converted' && resource.converted_pages?
+             resource.content_converted_pages_keys
+           else
+             [resource.send(params[:attribute])&.key]
+           end
+
+    service = Iiif::Server.new
+    failed = keys.map { |key| service.clear_cache(key) }.reject { |response| response[:success?] }
+
+    if failed.empty?
+      render json: {}, status: :ok
+    else
+      render json: { errors: failed.map { |response| response[:errors] } }, status: :bad_request
+    end
+  end
+
+  def convert
+    render json: { errors: [I18n.t('errors.resources_controller.convert')] }, status: :unauthorized and return unless current_user.admin?
+
+    resource = Resource.find(params[:id])
+    ConvertImageJob.perform_later(resource.id)
+
+    render json: {}, status: :ok
+  end
+
+  def create_manifest
+    resource = Resource.find(params[:id])
+    CreateManifestJob.perform_later(resource.id)
+
+    render json: {}, status: :ok
+  end
 
   protected
 
@@ -32,7 +70,29 @@ class Api::ResourcesController < Api::BaseController
     Resource.where(subquery.arel.exists)
   end
 
+  def permitted_params(item = nil)
+    p_params = super
+
+    p_params -= [:storage_key] if action_name == 'update'
+
+    p_params
+  end
+
   private
+
+  def can_clear_cache?
+    # Only admin users can clear the cache
+    return false unless current_user.admin?
+
+    # Only clear the cache if the "attribute" param is present
+    return false unless params[:attribute].present?
+
+    # Only clear the cache if we have the necessary environment variables set
+    vars = %w(CANTALOUPE_API_USERNAME CANTALOUPE_API_PASSWORD IIIF_HOST)
+    return false unless vars.all? {|v| ENV[v].present? }
+
+    true
+  end
 
   def set_defineable_params
     return unless params[:project_id].present?

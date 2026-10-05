@@ -2,25 +2,26 @@
 
 import { AssociatedDropdown, FileInputButton, LazyImage } from '@performant-software/semantic-components';
 import { UserDefinedFields, UserDefinedFieldsEmbeddedList } from '@performant-software/user-defined-fields';
-import React, { type ComponentType, useEffect } from 'react';
+import React, { type ComponentType, useContext, useEffect } from 'react';
 import { withTranslation } from 'react-i18next';
 import { Button, Form } from 'semantic-ui-react';
 import _ from 'underscore';
-import AuthenticationService from '../services/Authentication';
 import Organization from '../transforms/Organization';
 import OrganizationsService from '../services/Organizations';
 import ProjectsService from '../services/Projects';
 import ReadOnlyField from '../components/ReadOnlyField';
 import SimpleEditPage from '../components/SimpleEditPage';
 import withEditPage from '../hooks/EditPage';
+import { AuthenticationContext } from '../contexts/AuthenticationContext';
 
 const ProjectForm = withTranslation()((props) => {
+  const { user } = useContext(AuthenticationContext);
+
   /**
    * Pre-populate the organization dropdown if the user is only a member of one organization.
    */
   useEffect(() => {
     if (!props.item.id) {
-      const user = AuthenticationService.getCurrentUser();
       if (user.user_organizations && user.user_organizations.length === 1) {
         const { organization } = _.first(user.user_organizations);
         props.onSetState({ organization_id: organization.id, organization });
@@ -75,7 +76,7 @@ const ProjectForm = withTranslation()((props) => {
           label={props.t('Project.labels.name')}
           onChange={props.onTextInputChange.bind(this, 'name')}
           required={props.isRequired('name')}
-          value={props.item.name}
+          value={props.item.name || ''}
         />
         <Form.Input
           error={props.isError('organization_id')}
@@ -96,7 +97,7 @@ const ProjectForm = withTranslation()((props) => {
           label={props.t('Project.labels.description')}
           onChange={props.onTextInputChange.bind(this, 'description')}
           required={props.isRequired('description')}
-          value={props.item.description}
+          value={props.item.description || ''}
         />
         <ReadOnlyField
           label={props.t('Project.labels.uuid')}

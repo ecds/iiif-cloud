@@ -8,14 +8,22 @@ module Images
       output_file = "#{File.basename(file.path, '.*')}.tif"
       output_path = File.join(File.dirname(file.path), output_file)
 
-      convert = MiniMagick::Tool::Convert.new
+      convert = MiniMagick.convert
       convert << file.path
       convert << '-define'
       convert << 'tiff:tile-geometry=1024x1024'
+      convert << '-define'
+      convert << 'ptif:pyramid=1024x8'
       convert << '-depth'
       convert << '8'
       convert << '-compress'
       convert << 'jpeg'
+      convert << '-alpha'
+      convert << 'remove'
+      convert << '-alpha'
+      convert << 'off'
+      convert << '-colorspace'
+      convert << 'sRGB'
       convert << "ptif:#{output_path}"
       convert.call
 

@@ -9,6 +9,7 @@ module Attachable
 
     # Callbacks
     before_save :delete_attachments
+    before_validation :set_attachment_keys
 
     def delete_attachments
       self.class.list_attachments&.each do |name|
@@ -17,7 +18,39 @@ module Attachable
         attachment = self.send(name)
         return unless attachment.attached?
 
-        attachment.purge
+        # Handle both has_one_attached and has_many_attached
+        if attachment.is_a?(ActiveStorage::Attached::Many)
+          attachment.purge_all
+        else
+          attachment.purge
+        end
+      end
+    end
+
+    def set_attachment_keys
+      # Nothing to set if the attachble object does not implement the :storage_key method
+      return unless self.respond_to?(:storage_key)
+
+      # Nothing to set of the storage_key is empty
+      return unless self.storage_key.present?
+
+      self.class.list_attachments&.each do |name|
+        attachment = self.send(name)
+        
+        # Handle both has_one_attached and has_many_attached
+        if attachment.is_a?(ActiveStorage::Attached::Many)
+          # For has_many_attached, iterate through each attachment
+          attachment.each do |attach|
+            next unless attach.new_record?
+            next if attach.metadata && attach.metadata[:storage_key].present?
+            attach.key = "#{self.storage_key}/#{ActiveStorage::Blob.generate_unique_secure_token}"
+          end
+        else
+          # For has_one_attached
+          next unless attachment.new_record?
+          next if attachment.metadata && attachment.metadata[:storage_key].present?
+          attachment.key = "#{self.storage_key}/#{ActiveStorage::Blob.generate_unique_secure_token}"
+        end
       end
     end
   end
@@ -26,18 +59,20 @@ module Attachable
 
     # This method overrides model#has_one_attached in order to facilitate generating a <name>_url method for easily
     # accessing the attachment URL in serializers.
-    def has_one_attached(name, dependent: :purge_later)
-      super
-      generate_url_method name
+    # Pass generate_urls: false when the model defines its own <name>_*_url methods (e.g. page-indexed URLs).
+    def has_one_attached(name, dependent: :purge_later, generate_urls: true)
+      super(name, dependent: dependent)
+      generate_url_method name if generate_urls
       generate_remove_method name
       @attachments << name
     end
 
     # This method overrides model#has_many_attached in order to facilitate generating a <name>_url method for easily
     # accessing the attachment URL in serializers.
-    def has_many_attached(name, dependent: :purge_later)
-      super
-      generate_url_method name
+    # Pass generate_urls: false when the model defines its own <name>_*_url methods (e.g. page-indexed URLs).
+    def has_many_attached(name, dependent: :purge_later, generate_urls: true)
+      super(name, dependent: dependent)
+      generate_url_method name if generate_urls
       generate_remove_method name
       @attachments << name
     end
@@ -77,11 +112,20 @@ module Attachable
         "#{self.send("#{name}_base_url")}/full/max/0/default.jpg"
       end
 
+      define_method("#{name}_image_api_url") do |page_number = nil, region = 'full', size = 'max', rotation = '0', quality = 'default', format= 'jpg'|
+        attachment = self.send(name)
+        return nil unless attachment.attached?
+
+        return nil if attachment.audio?
+
+        "#{self.send("#{name}_base_url")}#{page_number.nil? ? '' : ";#{page_number}"}/#{region}/#{size}/#{rotation}/#{quality}.#{format}"
+      end
+
       define_method("#{name}_base_url") do
         attachment = self.send(name)
         return nil unless attachment.attached?
 
-        "#{ENV['IIIF_HOST_DOCKER'] || ENV['IIIF_HOST']}/iiif/3/#{attachment.key}"
+        "#{ENV['IIIF_HOST']}/iiif/3/#{CGI.escape(attachment.key)}"
       end
 
       define_method("#{name}_download_url") do
@@ -89,6 +133,15 @@ module Attachable
         return nil unless attachment.attached?
 
         attachment.url(disposition: 'attachment')
+      end
+
+      define_method("#{name}_info_url") do |page_number = nil|
+        attachment = self.send(name)
+        return nil unless attachment.attached?
+
+        return nil if attachment.audio?
+
+        "#{self.send("#{name}_base_url")}#{page_number.nil? ? '' : ";#{page_number}"}/info.json"
       end
 
       define_method("#{name}_inline_url") do
@@ -115,10 +168,26 @@ module Attachable
 
         "#{self.send("#{name}_base_url")}/square/^!250,250/0/default.jpg"
       end
+
+      define_method("#{name}_uploaded?") do
+        attachment = self.send(name)
+        return false unless attachment.attached?
+
+        ActiveStorage::Blob.service.exist?(attachment.key)
+      end
     end
 
     def attachment_preloads
-      @attachments.map{ |a| { "#{a}_attachment".to_sym => :blob } }
+      @attachments.map do |a|
+        # For has_many_attached, the association is plural: {name}_attachments
+        # For has_one_attached, the association is singular: {name}_attachment
+        # Check if the reflection exists to determine which pattern to use
+        if reflect_on_association("#{a}_attachments")
+          { "#{a}_attachments".to_sym => :blob }
+        else
+          { "#{a}_attachment".to_sym => :blob }
+        end
+      end
     end
 
     def list_attachments

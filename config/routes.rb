@@ -1,16 +1,31 @@
+require 'rack/session/cookie'
+require 'sidekiq/web'
+
+# Enable Rack session middleware only for Sidekiq Web UI
+Sidekiq::Web.use Rack::Session::Cookie, secret: Rails.application.credentials.secret_key_base, same_site: :lax, max_age: 86400
+
+# Restrict access to admins authenticated via Clerk
+Sidekiq::Web.use SidekiqWebAuthentication
+
 Rails.application.routes.draw do
+  mount Sidekiq::Web => '/sidekiq'
   mount UserDefinedFields::Engine, at: '/user_defined_fields'
 
   namespace :api do
+    get 'dashboard/heap', to: 'dashboard#heap'
+    get 'dashboard/status', to: 'dashboard#status'
+
     resources :organizations
     resources :projects
     resources :resources do
+      post :clear_cache, on: :member
+      post :convert, on: :member
+      post :create_manifest, on: :member
       post :upload, on: :collection
     end
-    resources :users
-
-    # Authentication
-    post '/auth/login', to: 'authentication#login'
+    resources :users do
+      get :me, on: :collection
+    end
   end
 
   namespace :public do
@@ -23,13 +38,17 @@ Rails.application.routes.draw do
       member do
         get :content
         get :download
+        get 'hls/*path', action: :hls, as: :hls, format: false
         get :iiif
+        get :info
         get :inline
         get :manifest
         get :preview
         get :thumbnail
       end
     end
+
+    get 'resources/:id/:region/:size/:rotation/:quality', to: 'resources#image_api', defaults: { format: 'jpg' }
   end
 
   # Default route for static front-end

@@ -2,6 +2,13 @@
 
 import type { Project } from './Project';
 
+export type AttachmentInfo = {
+  content_type: string,
+  byte_size: number,
+  key?: string,
+  pages?: number
+};
+
 export type Resource = {
   id: number,
   name: string,
@@ -14,5 +21,9 @@ export type Resource = {
   manifest: string,
   metadata: any,
   project_id: number,
-  project: Project
+  project: Project,
+  content_info: AttachmentInfo,
+  content_converted_info: AttachmentInfo,
+  content_converted_pages_info: AttachmentInfo,
+  storage_key: string
 };

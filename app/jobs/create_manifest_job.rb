@@ -1,8 +1,33 @@
 class CreateManifestJob < ApplicationJob
+
+  # In the event the job is started before the file is fully uploaded, we'll retry
+  retry_on Exceptions::FileNotUploadedError, wait: 10.seconds
+
   def perform(resource_id)
+    manifest_generated_time = Time.current
     resource = Resource.find(resource_id)
     return unless resource.iiif?
 
-    resource.update(manifest: Iiif::Manifest.create_for_resource(resource))
+    # A PDF has no canvases until its pages are converted; ConvertImageJob queues this job again
+    # once they're published.
+    return if resource.pdf? && !resource.converted_pages?
+
+    raise Exceptions::FileNotUploadedError unless resource.content_uploaded?
+
+    analyze_content(resource) if resource.audio? || resource.video?
+
+    resource.update(manifest: Iiif::Manifest.create_for_resource(resource), manifest_generated_at: manifest_generated_time)
+  end
+
+  private
+
+  def analyze_content(resource)
+    blob = resource.content.blob
+    return if blob.metadata[:duration].present?
+
+    blob.analyze
+    blob.reload
+  rescue StandardError => e
+    Rails.logger.error "Unable to analyze content for resource #{resource.id}: #{e.message}"
   end
 end
