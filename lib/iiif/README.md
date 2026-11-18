@@ -93,6 +93,19 @@ echo '/swapfile none swap sw 0 0' >> /etc/fstab
 echo 'vm.swappiness=10' > /etc/sysctl.d/99-swappiness.conf && sysctl -p /etc/sysctl.d/99-swappiness.conf
 ```
 
+### Have needrestart ignore Cantaloupe's temp files
+After each apt install, needrestart restarts services that are using deleted files. The JVM always has one in its temp directory, so ignore that directory. Then Cantaloupe restarts only when Java or a library it uses is upgraded:
+
+```bash
+echo 'push(@{$nrconf{blacklist_mappings}}, qr(^/root/cantaloupe-tmp/));' > /etc/needrestart/conf.d/cantaloupe.conf
+```
+
+If you changed `TMP` in `start.sh`, replace `/root/cantaloupe-tmp/` in the command above with the same directory. To check, run this while Cantaloupe is running. It should print nothing:
+
+```bash
+needrestart -b -r l | grep cantaloupe
+```
+
 ### Cap journald
 
 ```bash
@@ -123,6 +136,9 @@ sudo journalctl -f -u cantaloupe
 GC logs are in `/root/gclogs/`, capped at five 20 MB files.
 
 Heap dumps from an out-of-memory exit go to `/root/heapdumps/`; each is roughly the size of the heap. `start.sh` keeps the newest `HEAP_DUMPS_KEPT` (4) and deletes older ones each time it starts, which includes the automatic restart after an out-of-memory exit. Copy a dump elsewhere if you need to keep it longer.
+
+## Troubleshooting a server that won't start
+If nginx returns 502 straight away and its error log shows `connect() failed (111: Connection refused)`, Cantaloupe isn't running. systemd retries every 10 seconds without giving up, so `systemctl status cantaloupe` and `journalctl -u cantaloupe` show why each start fails. Startup takes 20–30 seconds before `curl localhost:8182/health` returns 200.
 
 ## Troubleshooting a wedged server
 If Cantaloupe stops responding while the process stays up, take a thread dump:

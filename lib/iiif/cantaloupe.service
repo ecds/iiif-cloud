@@ -1,9 +1,7 @@
 [Unit]
 Description=Cantaloupe IIIF Image Server Service
-# Stop retrying after 5 failed starts within 60s instead of looping forever on
-# a bad config.
-StartLimitIntervalSec=60
-StartLimitBurst=5
+# Never stop retrying
+StartLimitIntervalSec=0
 
 [Service]
 User=root
@@ -15,9 +13,12 @@ WorkingDirectory=/root
 ExecStart=/root/start.sh
 SyslogIdentifier=cantaloupe
 
-# Restart the service on failure
+# The JVM exits with 143 on SIGTERM; treat a normal stop as clean, not failed.
+SuccessExitStatus=143
+
+# Restart whenever the JVM exits, including after an out-of-memory exit.
 Restart=always
-RestartSec=5
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
