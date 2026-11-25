@@ -35,6 +35,8 @@ Rails.application.routes.draw do
       post :manifest
     end
 
+    resources :jobs, only: :show
+
     resources :resources, only: [:index, :create, :show, :destroy, :update] do
       member do
         get :content
@@ -48,6 +50,8 @@ Rails.application.routes.draw do
         get :thumbnail
         get 'transcript.:extension', action: :transcript, as: :transcript, format: false, constraints: { extension: /vtt|json/ }
       end
+
+      post :create_static_assets, on: :collection
     end
 
     get 'resources/:id/:region/:size/:rotation/:quality', to: 'resources#image_api', defaults: { format: 'jpg' }

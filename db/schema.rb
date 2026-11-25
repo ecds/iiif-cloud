@@ -10,156 +10,181 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_25_120000) do
-  create_schema "heroku_ext"
-
+ActiveRecord::Schema[8.0].define(version: 20_261_022_024_942) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "pg_catalog.plpgsql"
-  enable_extension "pg_stat_statements"
-  enable_extension "pgcrypto"
+  enable_extension 'pg_catalog.plpgsql'
+  enable_extension 'pgcrypto'
 
-  create_table "active_storage_attachments", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "record_type", null: false
-    t.bigint "record_id", null: false
-    t.bigint "blob_id", null: false
-    t.datetime "created_at", null: false
-    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
-    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  create_table 'active_storage_attachments', force: :cascade do |t|
+    t.string 'name', null: false
+    t.string 'record_type', null: false
+    t.bigint 'record_id', null: false
+    t.bigint 'blob_id', null: false
+    t.datetime 'created_at', null: false
+    t.index ['blob_id'], name: 'index_active_storage_attachments_on_blob_id'
+    t.index %w[record_type record_id name blob_id], name: 'index_active_storage_attachments_uniqueness',
+                                                    unique: true
   end
 
-  create_table "active_storage_blobs", force: :cascade do |t|
-    t.string "key", null: false
-    t.string "filename", null: false
-    t.string "content_type"
-    t.text "metadata"
-    t.string "service_name", null: false
-    t.bigint "byte_size", null: false
-    t.string "checksum"
-    t.datetime "created_at", null: false
-    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  create_table 'active_storage_blobs', force: :cascade do |t|
+    t.string 'key', null: false
+    t.string 'filename', null: false
+    t.string 'content_type'
+    t.text 'metadata'
+    t.string 'service_name', null: false
+    t.bigint 'byte_size', null: false
+    t.string 'checksum'
+    t.datetime 'created_at', null: false
+    t.index ['key'], name: 'index_active_storage_blobs_on_key', unique: true
   end
 
-  create_table "active_storage_variant_records", force: :cascade do |t|
-    t.bigint "blob_id", null: false
-    t.string "variation_digest", null: false
-    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  create_table 'active_storage_variant_records', force: :cascade do |t|
+    t.bigint 'blob_id', null: false
+    t.string 'variation_digest', null: false
+    t.index %w[blob_id variation_digest], name: 'index_active_storage_variant_records_uniqueness', unique: true
   end
 
-  create_table "controlled_vocabulary_reference_codes", force: :cascade do |t|
-    t.bigint "reference_table_id"
-    t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["reference_table_id"], name: "index_reference_codes_on_reference_table_id"
+  create_table 'controlled_vocabulary_reference_codes', force: :cascade do |t|
+    t.bigint 'reference_table_id'
+    t.string 'name'
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.index ['reference_table_id'], name: 'index_reference_codes_on_reference_table_id'
   end
 
-  create_table "controlled_vocabulary_reference_tables", force: :cascade do |t|
-    t.string "name"
-    t.string "key"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+  create_table 'controlled_vocabulary_reference_tables', force: :cascade do |t|
+    t.string 'name'
+    t.string 'key'
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
   end
 
-  create_table "controlled_vocabulary_references", force: :cascade do |t|
-    t.bigint "reference_code_id", null: false
-    t.string "referrable_type", null: false
-    t.bigint "referrable_id", null: false
-    t.string "key"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["reference_code_id"], name: "index_references_on_reference_code_id"
-    t.index ["referrable_type", "referrable_id"], name: "index_references_on_referrable"
+  create_table 'controlled_vocabulary_references', force: :cascade do |t|
+    t.bigint 'reference_code_id', null: false
+    t.string 'referrable_type', null: false
+    t.bigint 'referrable_id', null: false
+    t.string 'key'
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.index ['reference_code_id'], name: 'index_references_on_reference_code_id'
+    t.index %w[referrable_type referrable_id], name: 'index_references_on_referrable'
   end
 
-  create_table "data_migrations", primary_key: "version", id: :string, force: :cascade do |t|
+  create_table 'data_migrations', primary_key: 'version', id: :string, force: :cascade do |t|
   end
 
-  create_table "organizations", force: :cascade do |t|
-    t.string "name"
-    t.string "location"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "sso_id"
+  create_table 'job_items', force: :cascade do |t|
+    t.bigint 'job_id', null: false
+    t.bigint 'resource_id', null: false
+    t.string 'status', default: 'pending', null: false
+    t.text 'error'
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.index %w[job_id resource_id], name: 'index_job_items_on_job_id_and_resource_id', unique: true
+    t.index ['job_id'], name: 'index_job_items_on_job_id'
   end
 
-  create_table "projects", force: :cascade do |t|
-    t.bigint "organization_id", null: false
-    t.string "name"
-    t.text "description"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "uuid"
-    t.index ["organization_id"], name: "index_projects_on_organization_id"
+  create_table 'jobs', force: :cascade do |t|
+    t.string 'uuid', null: false
+    t.string 'status', default: 'pending', null: false
+    t.integer 'total_count', default: 0, null: false
+    t.integer 'completed_count', default: 0, null: false
+    t.integer 'failed_count', default: 0, null: false
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.jsonb 'extra', default: {}
+    t.bigint 'user_id'
+    t.index ['user_id'], name: 'index_jobs_on_user_id'
+    t.index ['uuid'], name: 'index_jobs_on_uuid', unique: true
   end
 
-  create_table "resources", force: :cascade do |t|
-    t.bigint "project_id", null: false
-    t.string "name"
-    t.text "exif"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.uuid "uuid", default: -> { "gen_random_uuid()" }
-    t.text "manifest"
-    t.jsonb "user_defined", default: {}
-    t.jsonb "metadata", default: {}
-    t.string "storage_key"
-    t.integer "pages_count"
-    t.string "conversion_status", default: "pending", null: false
-    t.text "conversion_error"
-    t.datetime "conversion_failed_at"
-    t.string "hls_identifier"
-    t.datetime "manifest_generated_at"
-    t.string "transcript_status"
-    t.text "transcript_error"
-    t.string "transcript_identifier"
-    t.string "transcript_language"
-    t.index ["pages_count"], name: "index_resources_on_pages_count"
-    t.index ["project_id"], name: "index_resources_on_project_id"
-    t.index ["user_defined"], name: "index_resources_on_user_defined", using: :gin
+  create_table 'organizations', force: :cascade do |t|
+    t.string 'name'
+    t.string 'location'
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.string 'sso_id'
   end
 
-  create_table "user_defined_fields_user_defined_fields", force: :cascade do |t|
-    t.string "defineable_type"
-    t.integer "defineable_id"
-    t.string "table_name"
-    t.string "column_name"
-    t.string "data_type"
-    t.boolean "required"
-    t.boolean "allow_multiple"
-    t.text "options", default: [], array: true
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "searchable", default: false, null: false
-    t.integer "order", default: 0, null: false
-    t.uuid "uuid", default: -> { "gen_random_uuid()" }, null: false
-    t.index ["defineable_type", "defineable_id"], name: "index_user_defined_fields_on_defineable"
+  create_table 'projects', force: :cascade do |t|
+    t.bigint 'organization_id', null: false
+    t.string 'name'
+    t.text 'description'
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.string 'uuid'
+    t.index ['organization_id'], name: 'index_projects_on_organization_id'
   end
 
-  create_table "user_organizations", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "organization_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["organization_id"], name: "index_user_organizations_on_organization_id"
-    t.index ["user_id"], name: "index_user_organizations_on_user_id"
+  create_table 'resources', force: :cascade do |t|
+    t.bigint 'project_id', null: false
+    t.string 'name'
+    t.text 'exif'
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.uuid 'uuid', default: -> { 'gen_random_uuid()' }
+    t.text 'manifest'
+    t.jsonb 'user_defined', default: {}
+    t.jsonb 'metadata', default: {}
+    t.string 'storage_key'
+    t.integer 'pages_count'
+    t.string 'conversion_status', default: 'pending', null: false
+    t.text 'conversion_error'
+    t.datetime 'conversion_failed_at'
+    t.datetime 'manifest_generated_at'
+    t.string 'transcript_status'
+    t.text 'transcript_error'
+    t.string 'transcript_identifier'
+    t.string 'transcript_language'
+    t.string 'hls_identifier'
+    t.index ['pages_count'], name: 'index_resources_on_pages_count'
+    t.index ['project_id'], name: 'index_resources_on_project_id'
+    t.index ['user_defined'], name: 'index_resources_on_user_defined', using: :gin
   end
 
-  create_table "users", force: :cascade do |t|
-    t.string "name"
-    t.string "email"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "admin", default: false
-    t.string "api_key"
-    t.string "sso_id"
-    t.string "avatar_url"
+  create_table 'user_defined_fields_user_defined_fields', force: :cascade do |t|
+    t.string 'defineable_type'
+    t.integer 'defineable_id'
+    t.string 'table_name'
+    t.string 'column_name'
+    t.string 'data_type'
+    t.boolean 'required'
+    t.boolean 'allow_multiple'
+    t.text 'options', default: [], array: true
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.boolean 'searchable', default: false, null: false
+    t.integer 'order', default: 0, null: false
+    t.uuid 'uuid', default: -> { 'gen_random_uuid()' }, null: false
+    t.index %w[defineable_type defineable_id], name: 'index_user_defined_fields_on_defineable'
   end
 
-  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "projects", "organizations"
-  add_foreign_key "resources", "projects"
-  add_foreign_key "user_organizations", "organizations"
-  add_foreign_key "user_organizations", "users"
+  create_table 'user_organizations', force: :cascade do |t|
+    t.bigint 'user_id', null: false
+    t.bigint 'organization_id', null: false
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.index ['organization_id'], name: 'index_user_organizations_on_organization_id'
+    t.index ['user_id'], name: 'index_user_organizations_on_user_id'
+  end
+
+  create_table 'users', force: :cascade do |t|
+    t.string 'name'
+    t.string 'email'
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.boolean 'admin', default: false
+    t.string 'api_key'
+    t.string 'sso_id'
+    t.string 'avatar_url'
+  end
+
+  add_foreign_key 'active_storage_attachments', 'active_storage_blobs', column: 'blob_id'
+  add_foreign_key 'active_storage_variant_records', 'active_storage_blobs', column: 'blob_id'
+  add_foreign_key 'job_items', 'jobs'
+  add_foreign_key 'jobs', 'users'
+  add_foreign_key 'projects', 'organizations'
+  add_foreign_key 'resources', 'projects'
+  add_foreign_key 'user_organizations', 'organizations'
+  add_foreign_key 'user_organizations', 'users'
 end
