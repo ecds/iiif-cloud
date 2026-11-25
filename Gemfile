@@ -68,5 +68,4 @@ group :development do
 end
 
 # ECDS
-gem 'ruby-vips'
 gem 'exiftool'

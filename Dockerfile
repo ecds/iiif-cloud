@@ -1,6 +1,6 @@
 FROM ruby:3.4.4
 
-RUN apt update && apt install -y git curl libvips42 libimage-exiftool-perl ffmpeg
+RUN apt update && apt install -y git curl libimage-exiftool-perl ffmpeg
 RUN curl -sL https://deb.nodesource.com/setup_24.x | bash -
 RUN apt install nodejs -y
 RUN node -v
