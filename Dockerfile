@@ -1,15 +1,14 @@
 FROM ruby:3.4.4
 
-RUN apt update && apt install git npm nodejs curl ruby-foreman ffmpeg -y
+RUN apt update && apt install -y git curl libvips42 libimage-exiftool-perl ffmpeg
 RUN curl -sL https://deb.nodesource.com/setup_24.x | bash -
-RUN apt update -y
-RUN apt upgrade -y
 RUN apt install nodejs -y
 RUN node -v
 RUN npm install -g yarn
 RUN mkdir /app
 WORKDIR /app
-RUN gem install bundler
+COPY .ruby-version ./
+RUN gem install bundler foreman
 ADD Gemfile /app/Gemfile
 ADD Gemfile.lock /app/Gemfile.lock
 RUN bundle update rake
