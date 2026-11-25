@@ -21,4 +21,4 @@ echo "Pushing image"
 docker push 310867200447.dkr.ecr.us-east-1.amazonaws.com/iiif-cloud:latest
 
 echo "Updating service"
-aws ecs update-service --cluster FairData --service iiif-cloud --force-new-deployment --region us-east-1
+# aws ecs update-service --cluster FairData --service iiif-cloud --force-new-deployment --region us-east-1
