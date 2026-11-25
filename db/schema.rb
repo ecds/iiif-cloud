@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_15_190912) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_25_120000) do
   create_schema "heroku_ext"
 
   # These are extensions that must be enabled in order to support this database
@@ -110,6 +110,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_15_190912) do
     t.datetime "conversion_failed_at"
     t.string "hls_identifier"
     t.datetime "manifest_generated_at"
+    t.string "transcript_status"
+    t.text "transcript_error"
+    t.string "transcript_identifier"
+    t.string "transcript_language"
     t.index ["pages_count"], name: "index_resources_on_pages_count"
     t.index ["project_id"], name: "index_resources_on_project_id"
     t.index ["user_defined"], name: "index_resources_on_user_defined", using: :gin

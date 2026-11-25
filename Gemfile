@@ -30,6 +30,9 @@ gem 'jwt', '~> 3.1.2'
 # Active storage service
 gem 'aws-sdk-s3', '~> 1.193'
 
+# Speech-to-text for audio and video transcripts, used when TRANSCRIPTION_SERVICE is aws_transcribe
+gem 'aws-sdk-transcribeservice', '~> 1.132', require: false
+
 # Image processing
 gem 'mini_magick', '~> 5.3.0'
 

@@ -21,6 +21,7 @@ Rails.application.routes.draw do
       post :clear_cache, on: :member
       post :convert, on: :member
       post :create_manifest, on: :member
+      post :transcribe, on: :member
       post :upload, on: :collection
     end
     resources :users do
@@ -45,6 +46,7 @@ Rails.application.routes.draw do
         get :manifest
         get :preview
         get :thumbnail
+        get 'transcript.:extension', action: :transcript, as: :transcript, format: false, constraints: { extension: /vtt|json/ }
       end
     end
 

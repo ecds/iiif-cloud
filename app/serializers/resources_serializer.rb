@@ -17,8 +17,17 @@ class ResourcesSerializer < BaseSerializer
   show_attributes(:content_converted_info) { |resource| content_info(resource.content_converted) }
   show_attributes(:content_converted_pages_info) { |resource| content_pages_info(resource.content_converted_pages) }
 
+  show_attributes :transcript_status, :transcript_error, :transcript_language
+  show_attributes(:transcript_url) { |resource| transcript_url(resource) }
+
   def self.manifest_url(resource)
     "#{ENV['HOSTNAME']}/public/resources/#{resource.uuid}/manifest"
+  end
+
+  def self.transcript_url(resource)
+    return unless resource.transcript?
+
+    "#{ENV['HOSTNAME']}/public/resources/#{resource.uuid}/transcript.vtt"
   end
 
   def self.content_info(attachment)

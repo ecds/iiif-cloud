@@ -215,6 +215,11 @@ class Resource < ApplicationRecord
     image? || video? || audio? || pdf?
   end
 
+  def transcript?
+    # The transcript must have been made from the current content, not content that has since been replaced
+    content.attached? && transcript_identifier.present? && transcript_identifier == content.key
+  end
+
   def pdf?
     content.content_type == 'application/pdf'
   end
@@ -256,6 +261,9 @@ class Resource < ApplicationRecord
 
     # # Extract EXIF data
     ExtractExifJob.perform_later(self.id)
+
+    # Transcribe audio and video
+    TranscribeJob.perform_later(self.id) if Transcripts.enabled?
   end
 
   def after_update
@@ -268,6 +276,7 @@ class Resource < ApplicationRecord
     return if !(content.attached? && content.blob.saved_changes?)
 
     reset_conversion
+    reset_transcript
 
     # Convert the image to a TIFF
     ConvertImageJob.perform_later(self.id)
@@ -277,11 +286,15 @@ class Resource < ApplicationRecord
 
     # Extract EXIF data
     ExtractExifJob.perform_later(self.id)
+
+    # Transcribe audio and video
+    TranscribeJob.perform_later(self.id) if Transcripts.enabled?
   end
 
   def after_destroy
     # HLS files are uploaded outside of ActiveStorage, so they aren't purged with the content attachment
     DeleteHlsJob.perform_later(ProcessVideoJob.hls_directory(self)) if video?
+    DeleteTranscriptJob.perform_later(Transcripts.directory(self)) if audio? || video?
   end
 
   def reset_conversion
@@ -295,6 +308,22 @@ class Resource < ApplicationRecord
     return if previous_hls_identifier.blank?
 
     DeleteHlsJob.perform_later(ProcessVideoJob.hls_prefix(self, previous_hls_identifier))
+
+    CreateManifestJob.perform_later(id)
+  end
+
+  # The previous content's transcript doesn't match the new content, so it is removed from the manifest and deleted
+  def reset_transcript
+    previous_identifier = nil
+
+    Resource.transaction do
+      previous_identifier = Resource.lock.where(id: id).pick(:transcript_identifier)
+      update_columns(transcript_status: nil, transcript_error: nil, transcript_identifier: nil, transcript_language: nil)
+    end
+
+    return if previous_identifier.blank?
+
+    DeleteTranscriptJob.perform_later(Transcripts.prefix(self, previous_identifier))
 
     CreateManifestJob.perform_later(id)
   end

@@ -136,9 +136,35 @@ module Iiif
         items: [create_annotation(resource, canvas['id'], page_number, width, height)]
       }]
 
+      canvas['annotations'] = [create_transcript_page(resource, canvas['id'])] if resource.transcript?
+
       canvas['metadata'] = metadata if metadata.present?
 
       canvas
+    end
+
+    # Captions and transcript as WebVTT. Viewers such as Universal Viewer, Clover and Ramp show supplementing text
+    # annotations alongside the audio or video.
+    def self.create_transcript_page(resource, canvas_id)
+      body = {
+        id: "#{base_url(resource)}/transcript.vtt",
+        type: 'Text',
+        format: Transcripts::FILES['vtt'],
+        label: { en: ['Transcript'] }
+      }
+      body[:language] = resource.transcript_language if resource.transcript_language.present?
+
+      {
+        id: "#{canvas_id}/annotations/1",
+        type: 'AnnotationPage',
+        items: [{
+          id: "#{canvas_id}/annotations/1/transcript",
+          type: 'Annotation',
+          motivation: 'supplementing',
+          body: body,
+          target: canvas_id
+        }]
+      }
     end
 
     def self.resource_metadata(resource)

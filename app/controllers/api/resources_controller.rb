@@ -54,6 +54,19 @@ class Api::ResourcesController < Api::BaseController
     render json: {}, status: :ok
   end
 
+  # Transcribes the resource's audio or video again. Admins only, since the transcription service charges per minute.
+  def transcribe
+    render json: { errors: [I18n.t('errors.resources_controller.transcribe')] }, status: :unauthorized and return unless current_user.admin?
+    render json: { errors: [I18n.t('errors.resources_controller.transcription_disabled')] }, status: :unprocessable_entity and return unless Transcripts.enabled?
+
+    resource = Resource.find(params[:id])
+    render json: { errors: [I18n.t('errors.resources_controller.not_transcribable')] }, status: :unprocessable_entity and return unless Transcripts.transcribable?(resource)
+
+    TranscribeJob.perform_later(resource.id)
+
+    render json: {}, status: :ok
+  end
+
   protected
 
   def base_query

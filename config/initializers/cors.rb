@@ -13,6 +13,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
     resource '/public/resources/:id/hls/*', headers: :any, methods: :get
     resource '/public/resources/:id/iiif', headers: :any, methods: :get
     resource '/public/resources/:id/info*', headers: :any, methods: :get
+    resource '/public/resources/:id/transcript*', headers: :any, methods: :get
     resource '*/rails/active_storage/blobs/redirect/*', headers: :any, methods: :get
   end
 

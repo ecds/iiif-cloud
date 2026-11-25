@@ -11,6 +11,16 @@
 
 To start FairImage, run `bundle exec rake start`.
 
+## Transcripts
+
+FairImage can transcribe uploaded audio and video. Transcription is off until `TRANSCRIPTION_SERVICE` is set; see `.env.example` for the settings.
+
+When it's on, each new or replaced audio or video file is sent to the service. The transcript is stored with the resource's files and added to its manifest as a WebVTT `supplementing` annotation on the canvas, which IIIF viewers can show as captions. It is served at `/public/resources/:uuid/transcript.vtt`, and the service's full output, including word timings, at `transcript.json`.
+
+The only service so far is `aws_transcribe`, which uses Amazon Transcribe and needs content stored in S3. The credentials it runs with need `transcribe:StartTranscriptionJob`, `transcribe:GetTranscriptionJob` and `transcribe:DeleteTranscriptionJob`, and read access to the bucket. Transcribe accepts MP3, MP4, M4A, WAV, FLAC, Ogg, WebM and AMR files; others, such as QuickTime `.mov`, fail with the reason recorded on the resource.
+
+To transcribe existing recordings, run `bundle exec rake transcripts:create`. Set `PROJECT_ID` to limit it to one project.
+
 ## Local Development with Clerk
 
 To run FairImage locally, you'll need to set up Clerk. Follow these steps:

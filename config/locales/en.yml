@@ -45,6 +45,9 @@ en:
     resources_controller:
       clear_cache: "You do not have permissions to clear resource cache."
       convert: "You do not have permissions to convert resources."
+      not_transcribable: "Only audio and video resources can be transcribed."
+      transcribe: "You do not have permissions to transcribe resources."
+      transcription_disabled: "Transcription is not set up. Set TRANSCRIPTION_SERVICE to turn it on."
 
     unauthenticated: "You must be authenticate to access."
     unauthorized: "You do not have access to this record."

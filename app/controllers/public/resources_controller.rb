@@ -7,7 +7,7 @@ class Public::ResourcesController < Api::ResourcesController
   prepend_before_action :set_project_id, only: :index
   prepend_before_action :set_resource_id, only: [:show, :destroy, :update]
   prepend_before_action :set_resource_project_id, only: [:create, :update]
-  skip_before_action :authenticate_request, only: [:content, :download, :hls, :iiif, :image_api, :info, :inline, :manifest, :preview, :thumbnail]
+  skip_before_action :authenticate_request, only: [:content, :download, :hls, :iiif, :image_api, :info, :inline, :manifest, :preview, :thumbnail, :transcript]
 
   # Master playlist ("master.m3u8") or variant playlist ("stream_0/playlist.m3u8")
   HLS_PLAYLIST_PATH = %r{\A(stream_\d+/)?\w+\.m3u8\z}
@@ -114,6 +114,11 @@ class Public::ResourcesController < Api::ResourcesController
 
   def manifest
     resource = Resource.find_by_uuid(params[:id])
+    render status: :not_found and return unless resource
+
+    # The manifest is built asynchronously by CreateManifestJob, so it's blank right after an upload
+    render json: { error: 'manifest not ready' }, status: :not_found and return if resource.manifest.blank?
+
     render json: JSON.parse(resource.manifest)
   end
 
@@ -143,6 +148,19 @@ class Public::ResourcesController < Api::ResourcesController
         resource.content_thumbnail_url
       end
     end
+  end
+
+  # Serves the transcript from the private bucket, as WebVTT captions or the transcription service's full JSON output
+  def transcript
+    resource = Resource.find_by_uuid(params[:id])
+    render status: :not_found and return unless resource&.transcript?
+
+    extension = params[:extension].to_s
+    body = ActiveStorage::Blob.service.download(Transcripts.key(resource, extension)).force_encoding(Encoding::UTF_8)
+
+    render plain: body, content_type: Transcripts::FILES[extension]
+  rescue ActiveStorage::FileNotFoundError
+    render status: :not_found
   end
 
   private
